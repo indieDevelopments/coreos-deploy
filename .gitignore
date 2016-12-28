@@ -1,2 +1,9 @@
-/gen_iptables_config/rules-save
-/get_discovery/cloud-config
+/gen_iptables_config/rules-save*
+/gen_cloud_config/cloud-config*
+
+/gen_cfssl
+!/gen_cfssl/_core*
+!/gen_cfssl/ca-config*
+!/gen_cfssl/ca.csr
+!/gen_cfssl/*.sh
+

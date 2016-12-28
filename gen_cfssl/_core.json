@@ -1,0 +1,19 @@
+{
+  "CN": "{CORE_NAME}",
+  "hosts": [
+    "{CORE_NAME}",
+    "{CORE_NAME}.local",
+    "127.0.0.1",
+    "{CORE_PRIVATE_IP}"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "RU",
+      "L": "MOW"
+    }
+  ]
+}
