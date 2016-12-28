@@ -1,5 +1,5 @@
 /gen_iptables_config/rules-save
-/gen_discovery/cloud-config
+/gen_cloud_config/cloud-config
 
 /gen_cfssl
 !/gen_cfssl/_core*
