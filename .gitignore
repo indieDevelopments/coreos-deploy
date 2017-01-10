@@ -1,4 +1,9 @@
-/gen_iptables_config/rules-save*
+.vscode
+
+/gen_iptables_config/
+!/gen_iptables_config/_rules-save
+!/gen_iptables_config/*.sh
+
 /gen_cloud_config/cloud-config*
 
 /gen_cfssl
@@ -6,4 +11,3 @@
 !/gen_cfssl/ca-config*
 !/gen_cfssl/ca.csr
 !/gen_cfssl/*.sh
-
