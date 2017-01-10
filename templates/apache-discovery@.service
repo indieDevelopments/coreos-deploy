@@ -12,17 +12,23 @@ BindsTo=apache@%i.service
 [Service]
 # Get CoreOS environmental variables
 EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/ssl-environment
 
 # Start
 ## Test whether service is accessible and then register useful information
 ExecStart=/bin/sh -c "\
         while true; do \
-        etcdctl --endpoints=https://127.0.0.1:4001,https://127.0.0.1:2379 --ca-file=/home/core/ca.pem --cert-file=/home/core/coreos.pem --key-file=/home/core/coreos-key.pem set /announce/services/apache%i ${COREOS_PUBLIC_IPV4}:%i --ttl 60; \
+        etcdctl \
+      --endpoints=${ETCDCTL_ENDPOINTS} \
+      --ca-file=${ETCDCTL_CA_FILE} \
+      --cert-file=${ETCDCTL_CERT_FILE} \
+      --key-file=${ETCDCTL_KEY_FILE} \
+      set /announce/services/apache%i ${COREOS_PUBLIC_IPV4}:%i --ttl 60; \
         sleep 45; \
         done"
 
 # Stop
-ExecStop=/usr/bin/etcdctl --endpoints=https://127.0.0.1:4001,https://127.0.0.1:2379 --ca-file=/home/core/ca.pem --cert-file=/home/core/coreos.pem --key-file=/home/core/coreos-key.pem rm /announce/services/apache%i
+ExecStop=/usr/bin/etcdctl --endpoints=${ETCDCTL_ENDPOINTS} --ca-file=${ETCDCTL_CA_FILE} --cert-file=${ETCDCTL_CERT_FILE} --key-file=${ETCDCTL_KEY_FILE} rm /announce/services/apache%i
 
 [X-Fleet]
 # Schedule on the same machine as the associated Apache service
