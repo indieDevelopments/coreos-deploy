@@ -1,0 +1,38 @@
+[Unit]
+Description=Nginx load balancer for web server backends
+
+# Requirements
+Requires=etcd2.service
+Requires=docker.service
+
+# Dependency ordering
+After=etcd2.service
+After=docker.service
+
+[Service]
+# Let the process take awhile to start up (for first run Docker containers)
+TimeoutStartSec=0
+
+# Change killmode from "control-group" to "none" to let Docker remove
+# work correctly.
+KillMode=none
+
+# Get CoreOS environmental variables
+EnvironmentFile=/etc/environment
+
+# Pre-start and Start
+## Directives with "=-" are allowed to fail without consequence
+ExecStartPre=-/usr/bin/docker kill lb
+ExecStartPre=-/usr/bin/docker rm lb
+ExecStartPre=/usr/bin/docker pull vdid/nginx_lb
+#ExecStart=/usr/bin/docker run --name lb -p ${COREOS_PUBLIC_IPV4}:80:80 vdid/nginx_lb /usr/local/bin/confd-watch
+ExecStart=/usr/bin/docker run --name lb -p ${COREOS_PUBLIC_IPV4}:80:80 vdid/nginx_lb
+
+
+# Stop
+ExecStop=/usr/bin/docker stop lb
+
+[X-Fleet]
+Conflicts=nginx@*.service
+Conflicts=lb.service
+Conflicts=apache@*.service

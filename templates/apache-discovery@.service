@@ -1,0 +1,36 @@
+[Unit]
+Description=Announce Apache@%i service on %i port (etcd registration)
+
+# Requirements
+Requires=apache@%i.service
+
+# Dependency ordering and binding
+After=etcd.service
+After=apache@%i.service
+BindsTo=apache@%i.service
+
+[Service]
+# Get CoreOS environmental variables
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/ssl-environment
+
+# Start
+## Test whether service is accessible and then register useful information
+ExecStart=/bin/sh -c "\
+        while true; do \
+        etcdctl \
+      --endpoints=${ETCDCTL_ENDPOINTS} \
+      --ca-file=${ETCDCTL_CA_FILE} \
+      --cert-file=${ETCDCTL_CERT_FILE} \
+      --key-file=${ETCDCTL_KEY_FILE} \
+      set /announce/services/apache%i ${COREOS_PUBLIC_IPV4}:%i --ttl 60; \
+        sleep 45; \
+        done"
+
+# Stop
+ExecStop=/usr/bin/etcdctl --endpoints=${ETCDCTL_ENDPOINTS} --ca-file=${ETCDCTL_CA_FILE} --cert-file=${ETCDCTL_CERT_FILE} --key-file=${ETCDCTL_KEY_FILE} rm /announce/services/apache%i
+
+[X-Fleet]
+# Schedule on the same machine as the associated Apache service
+X-ConditionMachineOf=apache@%i.service
+
