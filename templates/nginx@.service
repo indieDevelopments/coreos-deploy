@@ -1,0 +1,39 @@
+[Unit]
+Description=Nginx web server service
+
+# Requirements
+## We don\'t need these requires
+## Requires=etcd.service
+## Requires=docker.service
+Requires=nginx-discovery@%i.service
+
+# Dependency ordering
+After=etcd.service
+After=docker.service
+Before=nginx-discovery@%i.service
+
+[Service]
+# Let processes take awhile to start up (for first run Docker containers)
+TimeoutStartSec=0
+
+# Change killmode from "control-group" to "none" to let Docker remove work correctly.
+KillMode=none
+
+# Get CoreOS environmental variables
+EnvironmentFile=/etc/environment
+
+# Pre-start
+## Directives with "=-" are allowed to fail without consequence
+ExecStartPre=-/usr/bin/docker kill nginx%i
+ExecStartPre=-/usr/bin/docker rm nginx%i
+ExecStartPre=/usr/bin/docker pull vdid/nginx
+
+# Start
+ExecStart=/usr/bin/docker run --name nginx%i -p ${COREOS_PUBLIC_IPV4}:%i:80 vdid/nginx /usr/sbin/nginx -g 'daemon off;'
+
+# Stop
+ExecStop=/usr/bin/docker stop nginx%i
+
+[X-Fleet]
+# Don't schedule on the same machine as other Apache instances
+X-Conflicts=nginx@*.service
