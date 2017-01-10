@@ -23,7 +23,8 @@ coreos:
     # enable and start iptables-restore
     - name: iptables-restore.service
       enable: true
-      command: start write_files:
+      command: start 
+write_files:
   # tell etcd2 and fleet where our certificates are going to live:
   - path: /run/systemd/system/etcd2.service.d/30-certificates.conf
     permissions: 0644
@@ -45,11 +46,18 @@ coreos:
       Environment=FLEET_ETCD_CAFILE=/home/core/ca.pem
       Environment=FLEET_ETCD_CERTFILE=/home/core/coreos.pem
       Environment=FLEET_ETCD_KEYFILE=/home/core/coreos-key.pem
-  - path: /etc/environment
+  - path: "/etc/profile.env"
+    content: |
+      export ETCDCTL_CA_FILE=/home/core/ca.pem
+      export ETCDCTL_CERT_FILE=/home/core/coreos.pem
+      export ETCDCTL_KEY_FILE=/home/core/coreos-key.pem
+      export ETCDCTL_TRUSTED_CA_FILE=/home/core/ca.pem
+      export ETCDCTL_ENDPOINTS=https://127.0.0.1:4001,https://127.0.0.1:2379
+  - path: "/etc/ssl-environment"
     permissions: 0644
     content: |
-      Environment=ETCDCTL_CA_FILE=/home/core/ca.pem
-      Environment=ETCDCTL_CERT_FILE=/home/core/coreos.pem
-      Environment=ETCDCTL_KEY_FILE=/home/core/coreos-key.pem
-      Environment=ETCDCTL_ENDPOINT=https://127.0.0.1:4001,https://127.0.0.1:2379
-      Environment=ETCDCTL_PEERS=https://127.0.0.1:4001,https://127.0.0.1:2379
+      ETCDCTL_CA_FILE=/home/core/ca.pem
+      ETCDCTL_CERT_FILE=/home/core/coreos.pem
+      ETCDCTL_KEY_FILE=/home/core/coreos-key.pem
+      ETCDCTL_TRUSTED_CA_FILE=/home/core/ca.pem
+      ETCDCTL_ENDPOINTS=https://127.0.0.1:4001,https://127.0.0.1:2379
